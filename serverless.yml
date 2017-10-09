@@ -1,4 +1,4 @@
-service: moerss
+service: ${file(./config.yml):service_name, 'moerss'}
 
 plugins:
   - serverless-webpack
@@ -6,7 +6,20 @@ plugins:
 
 provider:
   name: aws
+  stage: ${file(./config.yml):stage, 'dev'}
+  region: ${file(./config.yml):region, 'us-east-1'}
   runtime: nodejs6.10
+  environment:
+    BUCKET_NAME: ${file(./config.yml):service_name, 'moerss'}-bucket
+  iamRoleStatements:
+    - Effect: 'Allow'
+      Action:
+        - 's3:*'
+      Resource:
+        Fn::Join:
+          - ''
+          - - 'arn:aws:s3:::'
+            - ${file(./config.yml):service_name, 'moerss'}-bucket
   usagePlan:
     quota:
       limit: 5000
@@ -33,3 +46,10 @@ functions:
                 source: true
                 type: false
                 limit: false
+
+resources:
+  Resources:
+    Bucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${file(./config.yml):service_name, 'moerss'}-bucket

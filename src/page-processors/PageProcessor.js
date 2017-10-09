@@ -1,6 +1,7 @@
 import request from 'request'
 import read from 'node-readability'
 import url from 'url'
+import s3CacheService from '../services/s3CacheService'
 
 export default class PageProcessor {
   constructor(pageURL) {
@@ -66,11 +67,13 @@ export default class PageProcessor {
   }
 
   loadCacheAsync = async () => {
-    return null
+    const data = await s3CacheService.asyncLoadCache(this.getCacheKey())
+    return data
   }
 
   saveCacheAsync = async (data) => {
-    return null
+    const result = await s3CacheService.asyncSaveCache(this.getCacheKey(), data)
+    return result
   }
 
   parsePageAsync = async () => {

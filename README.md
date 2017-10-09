@@ -3,9 +3,8 @@
 
 ## Setup
 
-```bash
-$ npm install
-```
+1. Run `npm install`.
+2. Edit `config.yml`
 
 
 ## Run
