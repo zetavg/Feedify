@@ -17,10 +17,18 @@ provider:
       rateLimit: 100
 
 functions:
-  hello:
-    handler: index.hello
+  feed:
+    handler: src/handlers/feed.handler
+    memorySize: 1024
+    timeout: 180
+    runtime: nodejs6.10
     events:
       - http:
-          path: hello
+          path: feed
           method: get
           cors: true
+          request:
+            parameters:
+              querystrings:
+                source: true
+                type: false
