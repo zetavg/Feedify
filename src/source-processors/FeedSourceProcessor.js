@@ -2,6 +2,8 @@ import request from 'request'
 import FeedParser from 'feedparser'
 import SourceProcessor from './SourceProcessor'
 
+/* eslint func-names: "off", prefer-arrow-callback: "off" */
+
 export default class FeedSourceProcessor extends SourceProcessor {
   getResultAsync = () => (
     new Promise((resolve, reject) => {
@@ -14,19 +16,31 @@ export default class FeedSourceProcessor extends SourceProcessor {
 
       const feedParser = new FeedParser()
       sourceFeedReq.pipe(feedParser)
+
+      let { limit } = this
+      let result = { items: [] }
+
       feedParser.on('error', () => {
         reject(new Error(`Failed to parse source feed: ${sourceURL}`))
-      })
+      }).on('meta', function (meta) {
+        result = {
+          ...result,
+          title: meta.title,
+          description: meta.description,
+          language: meta.language,
+          image_url: meta.image && meta.image.url,
+          categories: meta.categories,
+          copyright: meta.copyright,
+          link: meta.link,
+        }
+      }).on('readable', function () {
+        let feedItem
 
-      feedParser.on('readable', () => {
-        let { limit } = this
-        const items = []
-
-        while (limit > 0) {
+        /* eslint no-cond-assign: "off" */
+        while (feedItem = this.read()) {
           limit--
-          const feedItem = feedParser.read()
-          if (!feedItem) break
-          items.push({
+          if (limit < 0) break
+          result.items.push({
             title: feedItem.title,
             description: feedItem.description,
             url: feedItem.link,
@@ -37,17 +51,8 @@ export default class FeedSourceProcessor extends SourceProcessor {
             enclosures: feedItem.enclosures,
           })
         }
-
-        resolve({
-          title: feedParser.meta.title,
-          description: feedParser.meta.description,
-          language: feedParser.meta.language,
-          image_url: feedParser.meta.image && feedParser.meta.image.url,
-          categories: feedParser.meta.categories,
-          copyright: feedParser.meta.copyright,
-          link: feedParser.meta.link,
-          items,
-        })
+      }).on('end', function () {
+        resolve(result)
       })
     })
   )

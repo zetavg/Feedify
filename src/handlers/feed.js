@@ -13,13 +13,13 @@ const getErrorResponse = message => ({
   }, null, 2),
 })
 
-const handleRequestAsync = async (sourceType, source) => {
-  const sourceData = await processSourceAsync(sourceType, source)
   return JSON.stringify(sourceData)
+const handleRequestAsync = async (sourceType, source, { limit }) => {
+  const sourceData = await processSourceAsync(sourceType, source, { limit })
 }
 
 export const handler = (event, context, callback) => {
-  let { source, source_type: sourceType } = event.queryStringParameters || {}
+  let { source, source_type: sourceType, limit } = event.queryStringParameters || {}
 
   if (!source) {
     const response = getErrorResponse("The query string parameter 'source' is required.")
@@ -33,6 +33,12 @@ export const handler = (event, context, callback) => {
 
   if (sourceType === 'feed' && !source.match(/^https?:\/\//)) {
     source = `http://${source}`
+  }
+
+  if (!limit) {
+    limit = 1000
+  } else {
+    limit = parseInt(limit, 10)
   }
 
   let response
@@ -78,7 +84,7 @@ export const handler = (event, context, callback) => {
   }
 
   try {
-    handleRequestAsync(sourceType, source).then(handleSuccess).catch(handleError)
+    handleRequestAsync(sourceType, source, { limit }).then(handleSuccess).catch(handleError)
   } catch (e) {
     handleError(e)
   }

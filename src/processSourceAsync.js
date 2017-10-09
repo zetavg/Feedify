@@ -6,12 +6,12 @@ export class UnknownSourceTypeError extends Error {
   }
 }
 
-const processSourceAsync = async (sourceType, source) => {
+const processSourceAsync = async (sourceType, source, { limit }) => {
   let processor
 
   switch (sourceType) {
     case 'feed':
-      processor = new FeedSourceProcessor(source)
+      processor = new FeedSourceProcessor(source, { limit })
       break
     default:
       throw new UnknownSourceTypeError(sourceType)

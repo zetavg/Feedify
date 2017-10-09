@@ -32,3 +32,4 @@ functions:
               querystrings:
                 source: true
                 type: false
+                limit: false
