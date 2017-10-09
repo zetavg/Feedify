@@ -1,4 +1,7 @@
+import RSS from 'rss'
+
 import processSourceAsync, { UnknownSourceTypeError } from '../processSourceAsync'
+import processPageAsync from '../processPageAsync'
 
 import corsHeaders from '../constants/corsHeaders'
 
@@ -13,9 +16,42 @@ const getErrorResponse = message => ({
   }, null, 2),
 })
 
-  return JSON.stringify(sourceData)
 const handleRequestAsync = async (sourceType, source, { limit }) => {
   const sourceData = await processSourceAsync(sourceType, source, { limit })
+
+  const feed = new RSS({
+    title: sourceData.title,
+    description: sourceData.description,
+    language: sourceData.language,
+    image_url: sourceData.image && sourceData.image.url,
+    categories: sourceData.categories,
+    copyright: sourceData.copyright,
+    site_url: sourceData.link,
+    generator: 'aws-lambda-full-text-rss',
+  })
+
+  const itemProceedingPromises = sourceData.items.map(async (item) => {
+    const result = await processPageAsync(item.url)
+    const itemData = {
+      ...item,
+      ...result,
+    }
+
+    feed.item({
+      title: itemData.title,
+      description: itemData.content || itemData.description,
+      url: itemData.link,
+      guid: itemData.guid,
+      categories: itemData.categories,
+      author: itemData.author,
+      date: itemData.date,
+      enclosure: itemData.enclosure ||
+                 (itemData.enclosures && itemData.enclosures[0]),
+    })
+  })
+
+  await Promise.all(itemProceedingPromises)
+  return feed.xml({ indent: true })
 }
 
 export const handler = (event, context, callback) => {
