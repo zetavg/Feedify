@@ -45,9 +45,9 @@ const asyncLoadCache = (cacheKey, { force = false } = {}) => {
         try {
           const dataObj = JSON.parse(data.Body.toString('utf8'))
           resolve(dataObj)
-        } catch (error) {
+        } catch (e) {
           if (force) {
-            reject(error)
+            reject(e)
           } else {
             resolve(null)
           }

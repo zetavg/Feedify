@@ -19,7 +19,7 @@ provider:
         Fn::Join:
           - ''
           - - 'arn:aws:s3:::'
-            - ${file(./config.yml):service_name, 'moerss'}-bucket
+            - ${file(./config.yml):service_name, 'moerss'}-bucket/*
   usagePlan:
     quota:
       limit: 5000
@@ -53,3 +53,6 @@ resources:
       Type: AWS::S3::Bucket
       Properties:
         BucketName: ${file(./config.yml):service_name, 'moerss'}-bucket
+
+custom:
+  webpackIncludeModules: true
