@@ -23,7 +23,7 @@ const handleRequestAsync = async (sourceType, source, { limit }) => {
     title: sourceData.title,
     description: sourceData.description,
     language: sourceData.language,
-    image_url: sourceData.image && sourceData.image.url,
+    image_url: sourceData.image_url,
     categories: sourceData.categories,
     copyright: sourceData.copyright,
     site_url: sourceData.link,
