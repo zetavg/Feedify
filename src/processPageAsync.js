@@ -1,10 +1,20 @@
 import PageProcessor from './page-processors/PageProcessor'
+import InsidePageProcessor from './page-processors/InsidePageProcessor'
+import TheNewsLensPageProcessor from './page-processors/TheNewsLensPageProcessor'
 
 const processPageAsync = async (pageURL) => {
   let processor
 
-  if (pageURL.match(/https?:\/\/example\.com/)) {
-    processor = new PageProcessor(pageURL)
+  if (
+    pageURL.match(/^https?:\/\/www\.inside\.com\.tw/) ||
+    pageURL.match(/^https?:\/\/feedproxy\.google\.com\/~r\/inside-blog-taiwan/)
+  ) {
+    processor = new InsidePageProcessor(pageURL)
+  } else if (
+    pageURL.match(/^https?:\/\/www\.thenewslens\.com\/article/) ||
+    pageURL.match(/^https?:\/\/feedproxy\.google\.com\/~r\/TheNewsLens/)
+  ) {
+    processor = new TheNewsLensPageProcessor(pageURL)
   } else {
     processor = new PageProcessor(pageURL)
   }

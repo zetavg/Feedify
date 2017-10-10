@@ -31,23 +31,40 @@ const handleRequestAsync = async (sourceType, source, { limit }) => {
   })
 
   const itemProceedingPromises = sourceData.items.map(async (item) => {
-    const result = await processPageAsync(item.url)
-    const itemData = {
-      ...item,
-      ...result,
-    }
+    try {
+      const result = await processPageAsync(item.url)
+      const itemData = {
+        ...item,
+        ...result,
+      }
 
-    feed.item({
-      title: itemData.title,
-      description: itemData.content || itemData.description,
-      url: itemData.link,
-      guid: itemData.guid,
-      categories: itemData.categories,
-      author: itemData.author,
-      date: itemData.date,
-      enclosure: itemData.enclosure ||
-                 (itemData.enclosures && itemData.enclosures[0]),
-    })
+      feed.item({
+        title: itemData.title,
+        description: itemData.content || itemData.description,
+        url: itemData.link || item.url,
+        guid: itemData.guid,
+        categories: itemData.categories,
+        author: itemData.author,
+        date: itemData.date,
+        enclosure: itemData.enclosure ||
+                   (itemData.enclosures && itemData.enclosures[0]),
+      })
+    } catch (e) {
+      feed.item({
+        title: `Error Proceeding Page: '${item.title}'`,
+        description: JSON.stringify({
+          error: {
+            type: e.constructor.name,
+            message: e.message,
+            raw: e,
+          },
+        }, null, 2),
+        url: item.url,
+        guid: `error-${item.guid || item.url}`,
+        date: item.date,
+        author: item.author,
+      })
+    }
   })
 
   await Promise.all(itemProceedingPromises)
