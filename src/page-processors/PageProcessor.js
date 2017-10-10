@@ -67,11 +67,19 @@ export default class PageProcessor {
   }
 
   loadCacheAsync = async () => {
+    if (process.env.NODE_ENV === 'development') {
+      return null
+    }
+
     const data = await s3CacheService.asyncLoadCache(this.getCacheKey())
     return data
   }
 
   saveCacheAsync = async (data) => {
+    if (process.env.NODE_ENV === 'development') {
+      return null
+    }
+
     const result = await s3CacheService.asyncSaveCache(this.getCacheKey(), data)
     return result
   }

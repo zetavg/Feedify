@@ -4,7 +4,7 @@
 ## Setup
 
 1. Run `npm install`.
-2. Edit `config.yml`
+2. Edit `config.yml`.
 
 
 ## Run
