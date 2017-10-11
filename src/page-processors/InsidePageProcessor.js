@@ -4,11 +4,20 @@ export default class InsidePageProcessor extends PageProcessor {
   parsePageAsync = async () => {
     const article = await this.getArticleAsync()
 
-    const contentNode = article.document.getElementsByClassName('post_content')[0]
-    const noscriptTag = contentNode.getElementsByTagName('noscript')[0]
+    const contentElement = article.document.getElementsByClassName('post_content')[0]
 
-    if (noscriptTag) {
-      noscriptTag.remove()
+    const contentImgElements = contentElement.getElementsByTagName('img')
+
+    for (let i = 0; i < contentImgElements.length; ++i) {
+      if (contentImgElements[i].attributes.style) {
+        contentImgElements[i].attributes.style.value = ''
+      }
+    }
+
+    const noscriptElement = contentElement.getElementsByTagName('noscript')[0]
+
+    if (noscriptElement) {
+      noscriptElement.remove()
     }
 
     return {
@@ -18,7 +27,7 @@ export default class InsidePageProcessor extends PageProcessor {
       // categories: undefined,
       // date: undefined,
       // imageURL: undefined,
-      content: contentNode.innerHTML,
+      content: contentElement.innerHTML,
     }
   }
 }

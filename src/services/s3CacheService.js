@@ -18,7 +18,7 @@ const autoInit = () => {
   return true
 }
 
-const asyncLoadCache = (cacheKey, { force = false } = {}) => {
+const loadCacheAsync = (cacheKey, { force = false } = {}) => {
   const initialized = autoInit()
   const { bucketName } = config
   return new Promise((resolve, reject) => {
@@ -59,7 +59,7 @@ const asyncLoadCache = (cacheKey, { force = false } = {}) => {
   })
 }
 
-const asyncSaveCache = (cacheKey, data) => {
+const saveCacheAsync = (cacheKey, data) => {
   const initialized = autoInit()
   const { bucketName } = config
   return new Promise((resolve, reject) => {
@@ -85,8 +85,8 @@ const asyncSaveCache = (cacheKey, data) => {
 }
 
 const s3CacheService = {
-  asyncLoadCache,
-  asyncSaveCache,
+  loadCacheAsync,
+  saveCacheAsync,
 }
 
 export default s3CacheService

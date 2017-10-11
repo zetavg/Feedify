@@ -1,3 +1,4 @@
 service_name: moerss
 stage: dev
 region: ap-northeast-1
+mercury_api_key:

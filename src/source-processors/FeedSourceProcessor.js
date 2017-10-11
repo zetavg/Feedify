@@ -5,7 +5,7 @@ import SourceProcessor from './SourceProcessor'
 /* eslint func-names: "off", prefer-arrow-callback: "off" */
 
 export default class FeedSourceProcessor extends SourceProcessor {
-  getResultAsync = () => (
+  getFeedDataAsync = () => (
     new Promise((resolve, reject) => {
       const { source: sourceURL } = this
 
@@ -28,7 +28,7 @@ export default class FeedSourceProcessor extends SourceProcessor {
           title: meta.title,
           description: meta.description,
           language: meta.language,
-          image_url: meta.image && meta.image.url,
+          imageURL: meta.image && meta.image.url,
           categories: meta.categories,
           copyright: meta.copyright,
           link: meta.link,
@@ -56,4 +56,9 @@ export default class FeedSourceProcessor extends SourceProcessor {
       })
     })
   )
+
+  parseSourceAsync = async () => {
+    const result = await this.getFeedDataAsync()
+    return result
+  }
 }

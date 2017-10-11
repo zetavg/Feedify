@@ -16,14 +16,14 @@ const getErrorResponse = message => ({
   }, null, 2),
 })
 
-const handleRequestAsync = async (sourceType, source, { limit }) => {
-  const sourceData = await processSourceAsync(sourceType, source, { limit })
+const handleRequestAsync = async (sourceType, source, { limit, expand, debug }) => {
+  const sourceData = await processSourceAsync(sourceType, source, { limit, expand })
 
   const feed = new RSS({
     title: sourceData.title,
     description: sourceData.description,
     language: sourceData.language,
-    image_url: sourceData.image_url,
+    image_url: sourceData.imageURL,
     categories: sourceData.categories,
     copyright: sourceData.copyright,
     site_url: sourceData.link,
@@ -38,16 +38,29 @@ const handleRequestAsync = async (sourceType, source, { limit }) => {
         ...result,
       }
 
+      let content = [
+        itemData.beforeContent,
+        (itemData.content || itemData.description),
+        itemData.afterContent,
+      ].filter(x => x).join('')
+
+      if (debug) {
+        content += `<hr><pre>processingInfo = ${JSON.stringify(itemData.processingInfo, null, 2)}</pre>`
+      }
+
+      const author = [itemData.curator, itemData.author].filter(x => x).join(' / ')
+
       feed.item({
         title: itemData.title,
-        description: itemData.content || itemData.description,
-        url: itemData.link || item.url,
+        description: content,
+        url: itemData.link || itemData.url,
         guid: itemData.guid,
         categories: itemData.categories,
-        author: itemData.author,
+        author,
         date: itemData.date,
         enclosure: itemData.enclosure ||
-                   (itemData.enclosures && itemData.enclosures[0]),
+                   (itemData.enclosures && itemData.enclosures[0]) ||
+                   (itemData.sampleImageURL && { url: itemData.sampleImageURL }),
       })
     } catch (e) {
       feed.item({
@@ -73,6 +86,7 @@ const handleRequestAsync = async (sourceType, source, { limit }) => {
 
 export const handler = (event, context, callback) => {
   let { source, source_type: sourceType, limit } = event.queryStringParameters || {}
+  const { debug, expand } = event.queryStringParameters || {}
 
   if (!source) {
     const response = getErrorResponse("The query string parameter 'source' is required.")
@@ -89,7 +103,7 @@ export const handler = (event, context, callback) => {
   }
 
   if (!limit) {
-    limit = 1000
+    limit = null
   } else {
     limit = parseInt(limit, 10)
   }
@@ -137,7 +151,7 @@ export const handler = (event, context, callback) => {
   }
 
   try {
-    handleRequestAsync(sourceType, source, { limit }).then(handleSuccess).catch(handleError)
+    handleRequestAsync(sourceType, source, { limit, expand, debug }).then(handleSuccess).catch(handleError)
   } catch (e) {
     handleError(e)
   }

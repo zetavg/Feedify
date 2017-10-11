@@ -1,6 +1,7 @@
 import PageProcessor from './page-processors/PageProcessor'
 import InsidePageProcessor from './page-processors/InsidePageProcessor'
 import TheNewsLensPageProcessor from './page-processors/TheNewsLensPageProcessor'
+import CodetenguIssuePageProcessor from './page-processors/CodetenguIssuePageProcessor'
 
 const processPageAsync = async (pageURL) => {
   let processor
@@ -15,6 +16,10 @@ const processPageAsync = async (pageURL) => {
     pageURL.match(/^https?:\/\/feedproxy\.google\.com\/~r\/TheNewsLens/)
   ) {
     processor = new TheNewsLensPageProcessor(pageURL)
+  } else if (
+    pageURL.match(/^https?:\/\/weekly\.codetengu\.com\/issues/)
+  ) {
+    processor = new CodetenguIssuePageProcessor(pageURL)
   } else {
     processor = new PageProcessor(pageURL)
   }

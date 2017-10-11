@@ -1,4 +1,7 @@
 import FeedSourceProcessor from './source-processors/FeedSourceProcessor'
+import HNFeedSourceProcessor from './source-processors/HNFeedSourceProcessor'
+import PostgresWeeklyFeedSourceProcessor from './source-processors/PostgresWeeklyFeedSourceProcessor'
+import CodetenguFeedSourceProcessor from './source-processors/CodetenguFeedSourceProcessor'
 
 export class UnknownSourceTypeError extends Error {
   constructor(sourceType) {
@@ -6,12 +9,26 @@ export class UnknownSourceTypeError extends Error {
   }
 }
 
-const processSourceAsync = async (sourceType, source, { limit }) => {
+const processSourceAsync = async (sourceType, source, { limit, expand }) => {
   let processor
 
   switch (sourceType) {
     case 'feed':
-      processor = new FeedSourceProcessor(source, { limit })
+      if (
+        source.match(/^https?:\/\/hnrss\.org/)
+      ) {
+        processor = new HNFeedSourceProcessor(source, { limit, expand })
+      } else if (
+        source.match(/^https?:\/\/weekly\.codetengu\.com\/issues\.rss/)
+      ) {
+        processor = new CodetenguFeedSourceProcessor(source, { limit, expand })
+      } else if (
+        source.match(/^https?:\/\/postgresweekly\.com\/rss\//)
+      ) {
+        processor = new PostgresWeeklyFeedSourceProcessor(source, { limit, expand })
+      } else {
+        processor = new FeedSourceProcessor(source, { limit, expand })
+      }
       break
     default:
       throw new UnknownSourceTypeError(sourceType)

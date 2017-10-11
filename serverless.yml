@@ -11,6 +11,7 @@ provider:
   runtime: nodejs6.10
   environment:
     BUCKET_NAME: ${file(./config.yml):service_name, 'moerss'}-${file(./config.yml):stage, 'dev'}-bucket
+    MERCURY_API_KEY: ${file(./config.yml):mercury_api_key, ''}
   iamRoleStatements:
     - Effect: 'Allow'
       Action:
