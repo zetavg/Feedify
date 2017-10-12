@@ -10,6 +10,11 @@ module.exports = {
       loaders: ['babel-loader'],
       include: __dirname,
       exclude: /node_modules/,
+    }, {
+      test: /\.pug$/,
+      loaders: ['pug-loader'],
+      include: __dirname,
+      exclude: /node_modules/,
     }],
   },
   externals: [nodeExternals()],

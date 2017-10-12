@@ -15,6 +15,7 @@
     "babel-loader": "^7.1.2",
     "babel-plugin-transform-es2015-modules-commonjs": "^6.26.0",
     "babel-preset-stage-0": "^6.24.1",
+    "pug-loader": "^2.3.0",
     "serverless": "^1.23.0",
     "serverless-offline": "^3.16.0",
     "serverless-webpack": "^3.1.1",

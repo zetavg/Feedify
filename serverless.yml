@@ -31,9 +31,19 @@ provider:
       rateLimit: 100
 
 functions:
+  index:
+    handler: src/handlers/index.handler
+    memorySize: 128
+    timeout: 10
+    runtime: nodejs6.10
+    events:
+      - http:
+          path: /
+          method: get
+          cors: true
   feed:
     handler: src/handlers/feed.handler
-    memorySize: 1024
+    memorySize: 1536
     timeout: 180
     runtime: nodejs6.10
     events:

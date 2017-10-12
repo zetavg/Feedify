@@ -1,0 +1,108 @@
+doctype html
+html(lang="en")
+  head
+    title= Feedify
+    link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css', integrity='sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ', crossorigin='anonymous')
+    script(src="https://code.jquery.com/jquery-3.2.1.min.js", integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=", crossorigin="anonymous")
+    script(src='https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js', integrity='sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn', crossorigin='anonymous')
+
+  body(style='background-color: #fafafa;')
+    .container(style='padding: 64px 8px 28px;')
+      .row.justify-content-center
+        .col#main(style='max-width: 360px;')
+          .card
+            .card-block
+              h4.card-title Feedify
+              h6.card-subtitle.mb-2.text-muted Get full-text RSS feeds
+
+              hr
+
+              form#form
+                .form-group
+                  label(for='source-input')
+                    | Enter a feed URL below. We'll try to turn it into a full-content RSS feed.
+                  input#source-input.form-control(placeholder='https://hnrss.org/frontpage', autofocus=true)
+
+                .checkbox(style='text-align: right; margin-top: -12px;')
+                  label
+                    input#expand-input(type='checkbox', value='expand')
+                    | &nbsp;expand
+
+                input#submit-btn.btn.btn-primary(type='submit', value='Feedify it!')
+
+              #results.hidden-xs-up
+                hr
+
+                #loading-progress-bar.progress
+                  .progress-bar.progress-bar-striped.progress-bar-animated(style='width: 100%;')
+
+                #result
+                  p.card-text Here's your RSS Feed:
+                  .input-group
+                    input#result-input.form-control(type="text")
+                    //- span.input-group-btn
+                    //-   button#result-copy-btn.btn.btn-secondary(type="button") Copy
+
+
+
+  script.
+    var $main = $('#main')
+    var $form = $('#form')
+    var $sourceInput = $('#source-input')
+    var $expandInput = $('#expand-input')
+    var $submitBtn = $('#submit-btn')
+
+    var $results = $('#results')
+    var $loadingProgressBar = $('#loading-progress-bar')
+    var $result = $('#result')
+    var $resultInput = $('#result-input')
+    var $resultCopyBtn = $('#result-copy-btn')
+
+    $form.on('submit', function (e) {
+      e.preventDefault()
+
+      $sourceInput.prop('disabled', true)
+      $expandInput.prop('disabled', true)
+      $submitBtn.prop('disabled', true)
+      $results.removeClass('hidden-xs-up')
+      $loadingProgressBar.removeClass('hidden-xs-up')
+      $result.addClass('hidden-xs-up')
+
+      var source = $sourceInput.val()
+      source = source.replace(/^https?:\/\//, '')
+      source = encodeURIComponent(source)
+
+      var feedURL = window.location.origin + window.location.pathname.replace(/\/+$/, '') + '/feed' + '?source=' + source
+
+      var expand = $('#expand-input')[0].checked
+      if (expand) {
+        feedURL += '&expand=true'
+      }
+
+      var checkAvalibityRemainingRetries = 2
+      var checkAvalibity = function () {
+        $.get(feedURL).done(function () {
+          $resultInput.val(feedURL)
+          $loadingProgressBar.addClass('hidden-xs-up')
+          $result.removeClass('hidden-xs-up')
+          $sourceInput.prop('disabled', false)
+          $expandInput.prop('disabled', false)
+          $submitBtn.prop('disabled', false)
+        }).fail(function (data) {
+          if (checkAvalibityRemainingRetries > 0) {
+            checkAvalibity()
+            checkAvalibityRemainingRetries--
+          } else {
+            var message = data.responseJSON && data.responseJSON.message || 'An unknown error occured.'
+            $main.prepend('<div class="alert alert-danger alert-dismissible fade show" role="alert"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>' + message + '</div>')
+            $sourceInput.prop('disabled', false)
+            $expandInput.prop('disabled', false)
+            $submitBtn.prop('disabled', false)
+            $results.addClass('hidden-xs-up')
+            $loadingProgressBar.addClass('hidden-xs-up')
+          }
+        })
+      }
+
+      checkAvalibity()
+    })
