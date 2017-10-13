@@ -4,7 +4,10 @@ html(lang="en")
     title= Feedify
     link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css', integrity='sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ', crossorigin='anonymous')
     script(src="https://code.jquery.com/jquery-3.2.1.min.js", integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=", crossorigin="anonymous")
+    script(src='https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js', crossorigin='anonymous')
     script(src='https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js', integrity='sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn', crossorigin='anonymous')
+    script(src='https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js', crossorigin='anonymous')
+
 
   body(style='background-color: #fafafa;')
     .container(style='padding: 64px 8px 28px;')
@@ -24,7 +27,7 @@ html(lang="en")
                   input#source-input.form-control(placeholder='https://hnrss.org/frontpage', autofocus=true)
 
                 .checkbox(style='text-align: right; margin-top: -12px;')
-                  label
+                  label#expand-input-label(data-toggle='tooltip', title='Some tooltip text!', data-placement='bottom')
                     input#expand-input(type='checkbox', value='expand')
                     | &nbsp;expand
 
@@ -39,56 +42,89 @@ html(lang="en")
                 #result
                   p.card-text Here's your RSS Feed:
                   .input-group
-                    input#result-input.form-control(type="text")
-                    //- span.input-group-btn
-                    //-   button#result-copy-btn.btn.btn-secondary(type="button") Copy
-
-
+                    input#result-input.form-control(type='text', readonly='true', style='background-color: transparent;')
+                    span.input-group-btn
+                      button#result-copy-btn.btn.btn-secondary(type='button', data-toggle='tooltip', data-placement='bottom', data-clipboard-target='#result-input')
+                        | Copy
 
   script.
-    var $main = $('#main')
-    var $form = $('#form')
-    var $sourceInput = $('#source-input')
-    var $expandInput = $('#expand-input')
-    var $submitBtn = $('#submit-btn')
+    $(document).ready(function() {
+      var $main = $('#main')
+      var $form = $('#form')
+      var $sourceInput = $('#source-input')
+      var $expandInputLabel = $('#expand-input-label')
+      var $expandInput = $('#expand-input')
+      var $submitBtn = $('#submit-btn')
 
-    var $results = $('#results')
-    var $loadingProgressBar = $('#loading-progress-bar')
-    var $result = $('#result')
-    var $resultInput = $('#result-input')
-    var $resultCopyBtn = $('#result-copy-btn')
+      var $results = $('#results')
+      var $loadingProgressBar = $('#loading-progress-bar')
+      var $result = $('#result')
+      var $resultInput = $('#result-input')
+      var $resultCopyBtn = $('#result-copy-btn')
 
-    $form.on('submit', function (e) {
-      e.preventDefault()
+      $expandInputLabel.tooltip({ title: 'Expend curated publications into individual articles' })
 
-      $sourceInput.prop('disabled', true)
-      $expandInput.prop('disabled', true)
-      $submitBtn.prop('disabled', true)
-      $results.removeClass('hidden-xs-up')
-      $loadingProgressBar.removeClass('hidden-xs-up')
-      $result.addClass('hidden-xs-up')
+      var resultClipboard = new Clipboard('#result-copy-btn')
 
-      var source = $sourceInput.val()
-      source = source.replace(/^https?:\/\//, '')
-      source = encodeURIComponent(source)
-
-      var feedURL = window.location.origin + window.location.pathname.replace(/\/+$/, '') + '/feed' + '?source=' + source
-
-      var expand = $('#expand-input')[0].checked
-      if (expand) {
-        feedURL += '&expand=true'
+      var initResultCopyBtnTooltip = function () {
+        $resultCopyBtn.tooltip('dispose')
+        $resultCopyBtn.tooltip({ title: 'Copy to clipboard' })
       }
 
-      var checkAvalibityRemainingRetries = 2
-      var checkAvalibity = function () {
-        $.get(feedURL).done(function () {
+      var updateResultCopyBtnTooltip = function (title) {
+        $resultCopyBtn.tooltip('dispose')
+        $resultCopyBtn.tooltip({ title: title })
+        $resultCopyBtn.tooltip('show')
+        $resultCopyBtn.on('hidden.bs.tooltip', initResultCopyBtnTooltip)
+      }
+
+      initResultCopyBtnTooltip()
+
+      resultClipboard.on('success', function(e) {
+        updateResultCopyBtnTooltip('Copied!')
+        e.clearSelection()
+      })
+
+      resultClipboard.on('error', function(e) {
+        updateResultCopyBtnTooltip('Copy with Ctrl-C')
+      })
+
+      $form.on('submit', function (e) {
+        e.preventDefault()
+
+        $sourceInput.prop('disabled', true)
+        $expandInput.prop('disabled', true)
+        $submitBtn.prop('disabled', true)
+        $results.removeClass('hidden-xs-up')
+        $loadingProgressBar.removeClass('hidden-xs-up')
+        $result.addClass('hidden-xs-up')
+
+        var source = $sourceInput.val()
+        source = source.replace(/^https?:\/\//, '')
+        source = encodeURIComponent(source)
+
+        var feedURL = window.location.origin + window.location.pathname.replace(/\/+$/, '') + '/feed' + '?source=' + source
+
+        var expand = $('#expand-input')[0].checked
+        if (expand) {
+          feedURL += '&expand=true'
+        }
+
+        var handleDone = function () {
           $resultInput.val(feedURL)
           $loadingProgressBar.addClass('hidden-xs-up')
           $result.removeClass('hidden-xs-up')
           $sourceInput.prop('disabled', false)
           $expandInput.prop('disabled', false)
           $submitBtn.prop('disabled', false)
-        }).fail(function (data) {
+        }
+
+        var handleError = function (data) {
+          if (data.status === 200) {
+            return handleDone()
+          }
+
+          console.error(data)
           if (checkAvalibityRemainingRetries > 0) {
             checkAvalibity()
             checkAvalibityRemainingRetries--
@@ -101,8 +137,17 @@ html(lang="en")
             $results.addClass('hidden-xs-up')
             $loadingProgressBar.addClass('hidden-xs-up')
           }
-        })
-      }
+        }
 
-      checkAvalibity()
+        var checkAvalibityRemainingRetries = 2
+        var checkAvalibity = function () {
+          $.get(feedURL).done(handleDone).fail(handleError)
+        }
+
+        checkAvalibity()
+      })
+
+      $resultInput.on('focus', function (e) {
+        $(this).select()
+      })
     })
