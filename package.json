@@ -6,7 +6,9 @@
   "scripts": {
     "postinstall": "cp -n config.yml.sample config.yml || :",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "NODE_ENV=development node --inspect node_modules/serverless/bin/serverless offline start"
+    "start": "NODE_ENV=development node --inspect node_modules/serverless/bin/serverless offline start",
+    "deploy": "serverless deploy",
+    "remove": "serverless remove"
   },
   "author": "zetavg",
   "license": "MIT",
