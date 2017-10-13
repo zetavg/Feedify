@@ -1,4 +1,4 @@
-# Moerss: Full-text RSS feeds
+# Feedify: Full-text RSS feeds
 
 
 ## Setup
