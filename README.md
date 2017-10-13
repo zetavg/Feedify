@@ -20,6 +20,8 @@ $ npm start
 
 ## Deploy
 
+Before the deploy, you'll need to have [Serverless Framework with AWS](https://serverless.com/framework/docs/providers/aws/guide/credentials/) setup, and make sure the configurations in `config.yml` are what you want.
+
 To deploy to AWS, just run:
 
 ```bash
