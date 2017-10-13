@@ -29,6 +29,7 @@
     "htmltidy2": "^0.2.1",
     "jsdom": "^11.3.0",
     "node-readability": "^3.0.0",
+    "pug": "^2.0.0-rc.4",
     "request": "^2.83.0",
     "rss": "^1.2.2"
   }
