@@ -2,10 +2,11 @@ import s3CacheService from '../services/s3CacheService'
 
 export default class SourceProcessor {
   static defaultLimit = 200
+  static defaultExpandedLimit = 5
 
   constructor(source, { limit, expand } = {}) {
     this.source = source
-    this.limit = limit || this.constructor.defaultLimit
+    this.limit = limit || (expand ? this.constructor.defaultExpandedLimit : this.constructor.defaultLimit)
     this.expand = expand
   }
 

@@ -107,7 +107,7 @@ export default class PageProcessor {
       const article = await this.getMercuryArticleAsync()
       if (article.content) {
         let content = article.content
-        content = content.replace(/(<\/)body(.*>)/g, '$1div$2')
+        content = content.replace(/(<\/?)body(.*>)/g, '$1div$2')
         mercuryResult.content = content
         if (article.title) mercuryResult.title = article.title
         if (article.author) mercuryResult.author = article.author
@@ -122,7 +122,7 @@ export default class PageProcessor {
     const article = await this.getArticleAsync()
 
     let content = article.content
-    content = content.replace(/(<\/)body(.*>)/g, '$1div$2')
+    content = content.replace(/(<\/?)body(.*>)/g, '$1div$2')
 
     const result = {
       // title: undefined,

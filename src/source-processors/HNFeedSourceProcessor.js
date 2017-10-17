@@ -1,7 +1,7 @@
 import FeedSourceProcessor from './FeedSourceProcessor'
 
 export default class HNFeedSourceProcessor extends FeedSourceProcessor {
-  static defaultLimit = 200
+  static defaultLimit = 8
 
   parseSourceAsync = async () => {
     const feedData = await this.getFeedDataAsync()

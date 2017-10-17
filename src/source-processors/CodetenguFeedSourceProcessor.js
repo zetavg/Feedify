@@ -3,6 +3,7 @@ import FeedSourceProcessor from './FeedSourceProcessor'
 
 export default class CodetenguFeedSourceProcessor extends FeedSourceProcessor {
   static defaultLimit = 3
+  static defaultExpandedLimit = 1
 
   parseSourceAsync = async () => {
     const feedData = await this.getFeedDataAsync()

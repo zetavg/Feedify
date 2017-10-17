@@ -1,4 +1,4 @@
-service: ${file(./config.yml):service_name, 'moerss'}
+service: ${file(./config.yml):service_name, 'feedify'}
 
 plugins:
   - serverless-webpack
@@ -10,7 +10,7 @@ provider:
   region: ${file(./config.yml):region, 'us-east-1'}
   runtime: nodejs6.10
   environment:
-    BUCKET_NAME: ${file(./config.yml):service_name, 'moerss'}-${file(./config.yml):stage, 'dev'}-bucket
+    BUCKET_NAME: ${file(./config.yml):service_name, 'feedify'}-${file(./config.yml):stage, 'dev'}-bucket
     MERCURY_API_KEY: ${file(./config.yml):mercury_api_key, ''}
   iamRoleStatements:
     - Effect: 'Allow'
@@ -20,7 +20,7 @@ provider:
         Fn::Join:
           - ''
           - - 'arn:aws:s3:::'
-            - ${file(./config.yml):service_name, 'moerss'}-${file(./config.yml):stage, 'dev'}-bucket/*
+            - ${file(./config.yml):service_name, 'feedify'}-${file(./config.yml):stage, 'dev'}-bucket/*
   usagePlan:
     quota:
       limit: 5000
@@ -63,7 +63,7 @@ resources:
     Bucket:
       Type: AWS::S3::Bucket
       Properties:
-        BucketName: ${file(./config.yml):service_name, 'moerss'}-${file(./config.yml):stage, 'dev'}-bucket
+        BucketName: ${file(./config.yml):service_name, 'feedify'}-${file(./config.yml):stage, 'dev'}-bucket
 
 custom:
   webpackIncludeModules: true
