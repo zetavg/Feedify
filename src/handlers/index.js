@@ -1,5 +1,8 @@
 import corsHeaders from '../constants/corsHeaders'
 import template from '../templates/index.pug'
+import config from '../config'
+
+const { gaTrackingID } = config
 
 export const handler = (event, context, callback) => {
   const response = {
@@ -8,7 +11,7 @@ export const handler = (event, context, callback) => {
       ...corsHeaders,
       'Content-type': 'text/html',
     },
-    body: template({ hello: 'world' }),
+    body: template({ gaTrackingID }),
   }
 
   callback(null, response)

@@ -1,4 +1,4 @@
-service: ${file(./config.yml):service_name, 'feedify'}
+service: ${self:custom.config.service_name, 'feedify'}
 
 plugins:
   - serverless-webpack
@@ -6,12 +6,13 @@ plugins:
 
 provider:
   name: aws
-  stage: ${file(./config.yml):stage, 'dev'}
-  region: ${file(./config.yml):region, 'us-east-1'}
+  stage: ${self:custom.computedVariables.stage}
+  region: ${self:custom.config.region, 'us-east-1'}
   runtime: nodejs6.10
   environment:
-    BUCKET_NAME: ${file(./config.yml):service_name, 'feedify'}-${file(./config.yml):stage, 'dev'}-bucket
-    MERCURY_API_KEY: ${file(./config.yml):mercury_api_key, ''}
+    BUCKET_NAME: ${self:custom.computedVariables.stage}-${self:custom.config.service_name}-bucket
+    MERCURY_API_KEY: ${self:custom.config.mercury_api_key, ''}
+    GA_TRACKING_ID: ${self:custom.config.ga_tracking_id, ''}
   iamRoleStatements:
     - Effect: 'Allow'
       Action:
@@ -20,7 +21,7 @@ provider:
         Fn::Join:
           - ''
           - - 'arn:aws:s3:::'
-            - ${file(./config.yml):service_name, 'feedify'}-${file(./config.yml):stage, 'dev'}-bucket/*
+            - ${self:custom.computedVariables.stage}-${self:custom.config.service_name}-bucket/*
   usagePlan:
     quota:
       limit: 5000
@@ -63,7 +64,13 @@ resources:
     Bucket:
       Type: AWS::S3::Bucket
       Properties:
-        BucketName: ${file(./config.yml):service_name, 'feedify'}-${file(./config.yml):stage, 'dev'}-bucket
+        BucketName: ${self:custom.computedVariables.stage}-${self:custom.config.service_name}-bucket
 
 custom:
   webpackIncludeModules: true
+
+  config: ${file(./config.yml)}
+
+  computedVariables:
+    givenStage: ${opt:stage, self:custom.config.stage}
+    stage: ${self:custom.computedVariables.givenStage, 'dev'}

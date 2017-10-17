@@ -8,6 +8,13 @@ html(lang="en")
     script(src='https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js', integrity='sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn', crossorigin='anonymous')
     script(src='https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js', crossorigin='anonymous')
 
+    if gaTrackingID
+      script(async, src='https://www.googletagmanager.com/gtag/js?id=UA-108277006-2')
+      script.
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', '#{gaTrackingID}');
 
   body(style='background-color: #fafafa;')
     .container(style='padding: 64px 8px 28px;')
@@ -24,7 +31,7 @@ html(lang="en")
                 .form-group
                   label(for='source-input')
                     | Enter a feed URL below. We'll try to turn it into a full-content RSS feed.
-                  input#source-input.form-control(placeholder='https://hnrss.org/frontpage', autofocus=true)
+                  input#source-input.form-control(placeholder='https://hnrss.org/frontpage', autofocus)
 
                 .checkbox(style='text-align: right; margin-top: -12px;')
                   label#expand-input-label(data-toggle='tooltip', data-placement='bottom')
@@ -42,7 +49,7 @@ html(lang="en")
                 #result
                   p.card-text Here's your RSS Feed:
                   .input-group
-                    input#result-input.form-control(type='text', readonly='true', style='background-color: transparent;')
+                    input#result-input.form-control(type='text', readonly, style='background-color: transparent;')
                     span.input-group-btn
                       button#result-copy-btn.btn.btn-secondary(type='button', data-toggle='tooltip', data-placement='bottom', data-clipboard-target='#result-input')
                         | Copy
