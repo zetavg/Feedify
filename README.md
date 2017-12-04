@@ -1,5 +1,7 @@
 # Feedify: Full-text RSS feeds
 
+![Dependencies](https://david-dm.org/zetavg/Feedify.svg)
+
 Get full-text RSS feeds from a given data source. Built with [Serverless Framework](https://serverless.com/) and can be deployed to AWS with a single command.
 
 
